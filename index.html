@@ -3,25 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Modelo 3D — País</title>
+<title>Ilha Sulasia — Exploração 3D</title>
 <style>
-  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#06151a;font-family:Arial,sans-serif}
-  #info{position:fixed;left:18px;top:18px;z-index:5;color:white;background:rgba(4,16,20,.72);
-    padding:12px 15px;border:1px solid rgba(255,255,255,.18);border-radius:14px;backdrop-filter:blur(8px)}
-  #info b{display:block;font-size:16px;margin-bottom:4px}
-  #info span{font-size:12px;opacity:.8}
-  #loading{position:fixed;inset:0;display:grid;place-items:center;background:#06151a;color:white;z-index:20}
-  #loading div{text-align:center}
-  .bar{width:230px;height:7px;border-radius:9px;background:#17343a;overflow:hidden;margin-top:12px}
-  #progress{height:100%;width:0;background:#6ed6c2}
-  #hint{position:fixed;right:18px;bottom:18px;z-index:5;color:white;font-size:12px;
-    background:rgba(4,16,20,.58);padding:9px 12px;border-radius:12px}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#06151a;font-family:Arial,sans-serif}
+canvas{display:block}
+#loading{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#12353d,#06151a 70%);color:#fff;z-index:20}
+#loadingBox{width:min(420px,86vw);text-align:center;padding:28px;border:1px solid rgba(255,255,255,.15);border-radius:22px;background:rgba(4,16,20,.62);backdrop-filter:blur(12px);box-shadow:0 20px 70px rgba(0,0,0,.35)}
+.title{font-size:22px;font-weight:700;margin-bottom:7px}.sub{font-size:13px;opacity:.75;line-height:1.5}.bar{width:100%;height:8px;border-radius:10px;background:#17343a;overflow:hidden;margin-top:18px}.progress{height:100%;width:0;background:#6ed6c2;transition:width .15s}.status{font-size:12px;opacity:.7;margin-top:9px}
+#error{display:none;margin-top:16px;padding:12px;border-radius:12px;background:rgba(150,30,30,.28);font-size:12px;line-height:1.45}
+#info{position:fixed;left:18px;top:18px;z-index:5;color:white;background:rgba(4,16,20,.65);padding:12px 15px;border:1px solid rgba(255,255,255,.16);border-radius:14px;backdrop-filter:blur(8px)}
+#info b{display:block;font-size:16px;margin-bottom:4px}#info span{font-size:12px;opacity:.8}
+#hint{position:fixed;right:18px;bottom:18px;z-index:5;color:white;font-size:12px;background:rgba(4,16,20,.58);padding:9px 12px;border-radius:12px}
+@media(max-width:600px){#info{left:10px;top:10px}#info b{font-size:14px}#info span{font-size:11px}#hint{right:10px;bottom:10px;font-size:11px}}
 </style>
 </head>
 <body>
-<div id="loading"><div><div>Carregando modelo 3D…</div><div class="bar"><div id="progress"></div></div></div></div>
+<div id="loading"><div id="loadingBox">
+  <div class="title">Ilha Sulasia</div>
+  <div class="sub">Preparando a experiência 3D…<br>O modelo é grande, então o primeiro carregamento pode levar um pouco.</div>
+  <div class="bar"><div id="progress" class="progress"></div></div>
+  <div id="status" class="status">Conectando ao modelo…</div>
+  <div id="error"></div>
+</div></div>
 <div id="info"><b>Exploração 3D</b><span>Arraste para girar • Scroll para aproximar</span></div>
-<div id="hint">O modelo gira automaticamente</div>
+<div id="hint">Rotação automática ativada</div>
 
 <script type="importmap">
 {
@@ -39,151 +44,115 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x06151a);
-scene.fog = new THREE.FogExp2(0x06151a, 0.12);
 
-const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.01, 100);
+const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.01, 100);
 camera.position.set(1.45, 1.05, 1.75);
 
-const renderer = new THREE.WebGLRenderer({antialias:true, alpha:false});
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.18;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-scene.add(new THREE.HemisphereLight(0xbfeeff, 0x10231d, 2.2));
-const sun = new THREE.DirectionalLight(0xffe3b0, 3.2);
-sun.position.set(2.5,4,2.5);
-sun.castShadow = true;
-sun.shadow.mapSize.set(2048,2048);
-scene.add(sun);
-const fill = new THREE.DirectionalLight(0x8fd9ff, 1.5);
-fill.position.set(-3,1,-2);
-scene.add(fill);
+scene.add(new THREE.HemisphereLight(0xbfeeff, 0x10231d, 2.0));
+const sun = new THREE.DirectionalLight(0xffe3b0, 3.0);
+sun.position.set(2.5,4,2.5); sun.castShadow=true; sun.shadow.mapSize.set(1024,1024); scene.add(sun);
+const fill = new THREE.DirectionalLight(0x8fd9ff, 1.35); fill.position.set(-3,1,-2); scene.add(fill);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
 controls.autoRotate = true;
-controls.autoRotateSpeed = 0.65;
-controls.minDistance = 0.55;
-controls.maxDistance = 5;
-controls.target.set(0,0,0);
+controls.autoRotateSpeed = 0.55;
+controls.minDistance = 0.35;
+controls.maxDistance = 8;
+controls.enablePan = false;
 
 const loading = document.querySelector('#loading');
 const progress = document.querySelector('#progress');
+const status = document.querySelector('#status');
+const errorBox = document.querySelector('#error');
 
 function makeTree(x,z,s=1){
-  const g = new THREE.Group();
-  const trunk = new THREE.Mesh(
-    new THREE.CylinderGeometry(.012*s,.018*s,.10*s,8),
-    new THREE.MeshStandardMaterial({color:0x69462b,roughness:1})
-  );
-  trunk.position.y=.0;
-  trunk.castShadow=true;
-  g.add(trunk);
-  const crown = new THREE.Mesh(
-    new THREE.DodecahedronGeometry(.055*s,1),
-    new THREE.MeshStandardMaterial({color:0x2d8a4d,roughness:.9})
-  );
-  crown.position.y=.075*s;
-  crown.castShadow=true;
-  g.add(crown);
-  g.position.set(x,-.13,z);
-  scene.add(g);
-  return g;
+  const g=new THREE.Group();
+  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.012*s,.018*s,.10*s,8),new THREE.MeshStandardMaterial({color:0x69462b,roughness:1}));
+  trunk.position.y=0; trunk.castShadow=true; g.add(trunk);
+  const crown=new THREE.Mesh(new THREE.DodecahedronGeometry(.055*s,1),new THREE.MeshStandardMaterial({color:0x2d8a4d,roughness:.9}));
+  crown.position.y=.075*s; crown.castShadow=true; g.add(crown);
+  g.position.set(x,-.13,z); scene.add(g);
 }
+[[-.58,-.55,1.1],[-.48,-.64,.8],[-.30,-.66,1.0],[.05,-.65,.85],[.36,-.60,1.0],[.57,-.48,.8],[-.62,-.20,.85],[.62,-.18,1.0],[-.62,.18,.9],[.60,.22,.85],[-.52,.52,1.0],[-.25,.62,.8],[.10,.64,1.0],[.40,.58,.85]].forEach(v=>makeTree(...v));
 
-// Vegetação decorativa ao redor do modelo.
-[
-  [-.58,-.55,1.1],[-.48,-.64,.8],[-.30,-.66,1.0],[.05,-.65,.85],
-  [.36,-.60,1.0],[.57,-.48,.8],[-.62,-.20,.85],[.62,-.18,1.0],
-  [-.62,.18,.9],[.60,.22,.85],[-.52,.52,1.0],[-.25,.62,.8],
-  [.10,.64,1.0],[.40,.58,.85]
-].forEach(v=>makeTree(...v));
+const waterGeo=new THREE.PlaneGeometry(5,5,50,50);
+const waterMat=new THREE.ShaderMaterial({transparent:true,uniforms:{uTime:{value:0}},vertexShader:`uniform float uTime;varying vec2 vUv;void main(){vUv=uv;vec3 p=position;p.z+=sin(p.x*4.0+uTime*1.3)*.008;p.x+=cos(p.y*5.0+uTime*1.1)*.006;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);}`,fragmentShader:`uniform float uTime;varying vec2 vUv;void main(){float w=.5+.5*sin(vUv.x*35.0+uTime*1.5);float a=.72+.12*w;gl_FragColor=vec4(.03,.36,.43,a);}`});
+const water=new THREE.Mesh(waterGeo,waterMat); water.rotation.x=-Math.PI/2; water.position.y=-.17; water.receiveShadow=true; scene.add(water);
 
-// Água animada: uma superfície grande abaixo do cenário.
-const waterGeo = new THREE.PlaneGeometry(5,5,80,80);
-const waterMat = new THREE.ShaderMaterial({
-  transparent:true,
-  uniforms:{uTime:{value:0}},
-  vertexShader:`
-    uniform float uTime;
-    varying vec2 vUv;
-    void main(){
-      vUv=uv;
-      vec3 p=position;
-      p.z += sin(p.x*4.0+uTime*1.3)*0.008;
-      p.x += cos(p.y*5.0+uTime*1.1)*0.006;
-      gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
-    }`,
-  fragmentShader:`
-    uniform float uTime;
-    varying vec2 vUv;
-    void main(){
-      float w = 0.5 + 0.5*sin(vUv.x*35.0 + uTime*1.5);
-      float a = 0.72 + 0.12*w;
-      gl_FragColor=vec4(0.03,0.36,0.43,a);
-    }`
-});
-const water = new THREE.Mesh(waterGeo,waterMat);
-water.rotation.x=-Math.PI/2;
-water.position.y=-.17;
-water.receiveShadow=true;
-scene.add(water);
-
-// Pequenos brilhos/partículas para dar vida ao ambiente.
-const dots = new THREE.BufferGeometry();
-const positions = [];
-for(let i=0;i<180;i++){
-  positions.push((Math.random()-.5)*3.8, .05+Math.random()*1.5, (Math.random()-.5)*3.8);
-}
+const dots=new THREE.BufferGeometry(), positions=[];
+for(let i=0;i<130;i++)positions.push((Math.random()-.5)*3.8,.05+Math.random()*1.5,(Math.random()-.5)*3.8);
 dots.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
-const dotMat = new THREE.PointsMaterial({color:0xbfeee8,size:.008,transparent:true,opacity:.55});
-scene.add(new THREE.Points(dots,dotMat));
+scene.add(new THREE.Points(dots,new THREE.PointsMaterial({color:0xbfeee8,size:.008,transparent:true,opacity:.45})));
 
-const loader = new GLTFLoader();
-loader.load('modelo.glb', gltf=>{
-  const model = gltf.scene;
-  model.traverse(o=>{
-    if(o.isMesh){
-      o.castShadow=true; o.receiveShadow=true;
-      if(o.material){
-        o.material.needsUpdate=true;
-        if('roughness' in o.material) o.material.roughness=Math.min(o.material.roughness ?? .7,.82);
-        if('metalness' in o.material) o.material.metalness=Math.min(o.material.metalness ?? 0,.35);
-      }
-    }
-  });
-  // O arquivo enviado já está centrado; mantemos a geometria original.
-  scene.add(model);
-  loading.remove();
-}, xhr=>{
-  if(xhr.total) progress.style.width=(xhr.loaded/xhr.total*100).toFixed(1)+'%';
-}, err=>{
-  console.error(err);
-  loading.innerHTML='<div>Não foi possível carregar o modelo.<br>Verifique se o arquivo <b>modelo.glb</b> está na mesma pasta.</div>';
-});
-
-const clock = new THREE.Clock();
-function animate(){
-  requestAnimationFrame(animate);
-  const t=clock.getElapsedTime();
-  waterMat.uniforms.uTime.value=t;
-  dots.rotation.y=t*.012;
-  controls.update();
-  renderer.render(scene,camera);
-}
-animate();
-
-addEventListener('resize',()=>{
-  camera.aspect=innerWidth/innerHeight;
+function fitCamera(model){
+  const box=new THREE.Box3().setFromObject(model);
+  const size=box.getSize(new THREE.Vector3());
+  const center=box.getCenter(new THREE.Vector3());
+  const radius=Math.max(size.x,size.y,size.z)*0.5;
+  const distance=Math.max(radius*2.8, .9);
+  camera.position.set(center.x+distance*1.05, center.y+distance*.72, center.z+distance*1.25);
+  camera.near=Math.max(distance/1000,.001);
+  camera.far=distance*20;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth,innerHeight);
-});
+  controls.target.copy(center);
+  controls.minDistance=Math.max(radius*.7,.25);
+  controls.maxDistance=Math.max(radius*8,3);
+  controls.update();
+}
+
+const loader=new GLTFLoader();
+let loaded=false;
+const sources=['./modelo.glb','https://raw.githubusercontent.com/pedrosuper485-ops/Ilha-3D/main/modelo.glb'];
+
+function showError(message){
+  status.textContent='Não foi possível carregar automaticamente.';
+  errorBox.style.display='block';
+  errorBox.innerHTML=message;
+}
+
+function loadSource(index){
+  const url=sources[index];
+  status.textContent=index===0?'Carregando modelo 3D…':'Tentando uma segunda rota de carregamento…';
+  progress.style.width='0%';
+  loader.load(url,gltf=>{
+    if(loaded)return; loaded=true;
+    const model=gltf.scene;
+    model.traverse(o=>{
+      if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.needsUpdate=true;if('roughness' in o.material)o.material.roughness=Math.min(o.material.roughness ?? .7,.84);if('metalness' in o.material)o.material.metalness=Math.min(o.material.metalness ?? 0,.35);}}
+    });
+    scene.add(model);
+    fitCamera(model);
+    status.textContent='Modelo carregado!';
+    progress.style.width='100%';
+    setTimeout(()=>loading.style.display='none',350);
+  },xhr=>{
+    if(xhr.total>0){progress.style.width=(xhr.loaded/xhr.total*100).toFixed(1)+'%';status.textContent=`Carregando modelo 3D… ${Math.round(xhr.loaded/xhr.total*100)}%`;}
+    else status.textContent='Baixando o modelo 3D…';
+  },err=>{
+    console.error('Falha ao carregar',url,err);
+    if(index+1<sources.length) loadSource(index+1);
+    else showError('O arquivo <b>modelo.glb</b> está no GitHub, mas o navegador não conseguiu baixá-lo. Recarregue a página ou abra em outro navegador.');
+  });
+}
+
+loadSource(0);
+
+const clock=new THREE.Clock();
+function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();waterMat.uniforms.uTime.value=t;dots.rotation.y=t*.012;controls.update();renderer.render(scene,camera)}
+animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 </script>
 </body>
 </html>
