@@ -1,0 +1,13 @@
+# Apresentação 3D
+
+Abra `index.html` em um servidor web. O arquivo `modelo.glb` é o modelo original enviado.
+
+O site adiciona:
+- rotação automática e controles de câmera;
+- iluminação PBR mais agradável;
+- água animada;
+- vegetação decorativa ao redor;
+- partículas e atmosfera;
+- carregamento com barra de progresso.
+
+Para publicar, envie a pasta inteira para um serviço de hospedagem estática.
